@@ -9,13 +9,20 @@
 		<div id="app">
 			<div class="block">
 				<el-row>
-					<el-button v-if="issubmit" type="danger" disabled>正在计算</el-button>
-					<el-button v-else="issubmit" type="primary" @click='function1'>开始计算</el-button>
+					<el-button v-if="issubmit" type="danger" disabled>计算中 <i class="el-icon-loading"></i></el-button>
+					<el-button v-else="issubmit" type="primary" @click='function1'>
+						开始计算
+						</el-button>
 				</el-row>
 				<el-row>
 					<el-timeline :reverse="reverse">
-						<el-timeline-item v-for="(activity, index) in activities" :key="index"
-							:timestamp="activity.timestamp">
+						<el-timeline-item v-for="(activity, index) in activities"
+						:key="index"
+						:timestamp="activity.timestamp"
+						:type="activity.type"
+						:icon="activity.icon"
+						:size="activity.size"
+						>
 							{{activity.content}}
 						</el-timeline-item>
 					</el-timeline>
