@@ -1,56 +1,93 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <!-- import CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-</head>
-<body>
-<div id="app">
-    <div class="block">
-        <div class="radio">
-            排序：
-            <el-radio-group v-model="reverse">
-                <el-radio :label="true">倒序</el-radio>
-                <el-radio :label="false">正序</el-radio>
-            </el-radio-group>
-        </div>
-        <el-timeline :reverse="reverse">
-            <el-timeline-item
-                    v-for="(activity, index) in activities"
-                    :key="index"
-                    :timestamp="activity.timestamp">
-                {{activity.content}}
-            </el-timeline-item>
-        </el-timeline>
-    </div>
-</div>
-</body>
-<!-- import Vue before Element -->
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
-<!-- import JavaScript -->
-<script src="https://unpkg.com/element-ui/lib/index.js"></script>
-<!--导入 axios 获取数据-->
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
-<script>
-     new Vue {
-     delimiters:['[{', '}]'],
-    data() {
-      return {
-        reverse: true,
-        activities: [{
-          content: '活动按期开始',
-          timestamp: '2018-04-15'
-        }, {
-          content: '通过审核',
-          timestamp: '2018-04-13'
-        }, {
-          content: '创建成功',
-          timestamp: '2018-04-11'
-        }]
-      };
-    }
-  };
-</script>
+	<head>
+		<meta charset="UTF-8">
+		<!-- import CSS -->
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+			<div class="block">
+				<el-row>
+					<el-button v-if="issubmit" type="danger" disabled>计算中 <i class="el-icon-loading"></i></el-button>
+					<el-button v-else="issubmit" type="primary" @click='function1'>
+						开始计算
+						</el-button>
+				</el-row>
+				<el-row>
+					<el-timeline :reverse="reverse">
+						<el-timeline-item v-for="(activity, index) in activities"
+						:key="index"
+						:timestamp="activity.timestamp"
+						:type="activity.type"
+						:icon="activity.icon"
+						:size="activity.size"
+						>
+							[{activity.content}]
+						</el-timeline-item>
+					</el-timeline>
+				</el-row>
+			</div>
+		</div>
+	</body>
+	  <!-- import Vue before Element -->
+  <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<!--导入 axios 获取数据-->
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+	<script>
+		new Vue({
+			el: '#app',
+			delimiters: ['[{', '}]'],
+			data: function() {
+				return {
+					timer: false,
+					reverse: true,
+					// 提交按钮不能多次按
+					issubmit:false,
+					activities: []
+				};
+			},
+			methods: {
+				// 调用后端接口，开始计算数据
+				async function1() {
+					this.issubmit = true;
+					const {
+						data: res
+					} = await this.$http.get("http://127.0.0.1:5000/function1")
+					this.issubmit = false;
+				},
+				// 调用后端接口，显示计算进度
+				async function2() {
+					const {
+						data: res
+					} = await this.$http.get("http://127.0.0.1:5000/function2")
+					this.activities = res.activites;
+				},
+				// 当关闭页面，清空日志
+				async function3() {
+					const {
+						data: res
+					} = await this.$http.get("http://127.0.0.1:5000/function3")
+				}
+			},
+
+			mounted() {
+				this.function3();
+				if (this.timer) {
+					clearInterval(this.timer)
+				} else {
+					this.timer = setInterval(() => {
+						this.function2();
+					}, 1000)
+				}
+			},
+			destroyed() {
+
+				clearInterval(this.timer);
+			},
+		})
+	</script>
 </html>

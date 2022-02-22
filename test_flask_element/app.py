@@ -1,15 +1,17 @@
 import datetime
-import random
 import sqlite3
-import string
 import time
-import threading
 from flask import Flask, render_template, jsonify
 from flask_cors import *
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 db = "./test.db"
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
 @app.route("/function1")
